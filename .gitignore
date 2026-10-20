@@ -1,0 +1,23 @@
+#################
+#Temporary files#
+#################
+*.swp
+*.pyc
+.env/*
+__pycache__/*
+
+
+#################
+#Data      files#
+#################
+#data/*
+# cifar dataset
+data/cifar-100-python/
+data/cifar-100-python.tar.gz
+.DS_Store
+
+###############
+#Jupyter files#
+###############
+.ipynb_checkpoints/*
+.idea/*
