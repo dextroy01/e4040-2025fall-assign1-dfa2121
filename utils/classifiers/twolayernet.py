@@ -53,7 +53,8 @@ class TwoLayerNet(object):
         # NOTE: Use self.layer#.feedforward function you wrote in layer_funcs.py   #
         ############################################################################
 
-        raise NotImplementedError
+        X = self.layer1.feedforward(X)
+        X = self.layer2.feedforward(X)
         ############################################################################
         #                          END OF YOUR CODE                                #
         ############################################################################
@@ -88,7 +89,9 @@ class TwoLayerNet(object):
         # functions in layer_utils.py                                              #
         ############################################################################
 
-        raise NotImplementedError
+        loss, dscores = softmax_loss(scores, labels)
+        dh = self.layer2.backward(dscores)
+        self.layer1.backward(dh)
         ############################################################################
         #                          END OF YOUR CODE                                #
         ############################################################################
@@ -141,11 +144,15 @@ class TwoLayerNet(object):
         # explicitly iterate through the parameters
         if optim == 'SGD':
             for name, param in params.items():
-                pass # your implementations here: update each parameter
+                params[name] = param - learning_rate * grads[name]
 
-        # implement the rest
+        elif optim == 'momentum':
+            for name, param in params.items():
+                velocities[name] = momentum * velocities[name] + learning_rate * grads[name]
+                params[name] = param - velocities[name]
 
-        raise NotImplementedError
+        else:
+            raise ValueError('invalid optim:', optim)
         ############################################################################
         #                          END OF YOUR CODE                                #
         ############################################################################
@@ -178,7 +185,7 @@ class TwoLayerNet(object):
         #                         START OF YOUR CODE                               #
         ############################################################################
 
-        raise NotImplementedError
+        preds = np.argmax(self.forward(X), axis=1)
         ############################################################################
         #                          END OF YOUR CODE                                #
         ############################################################################

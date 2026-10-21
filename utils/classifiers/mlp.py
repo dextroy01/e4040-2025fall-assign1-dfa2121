@@ -17,19 +17,21 @@ class MLP:
     """
 
     def __init__(
-        self, input_dim=3072, hidden_dims=[200, 200], num_classes=10, reg=0.0, weight_scale=1e-3
+        self, input_dim=3072, hidden_dims=[200, 200], num_classes=10, reg=0.0, weight_scale=1e-3,
+        activation='relu'
     ):
         """
         Inputs:
         - reg: (float) L2 regularization
         - weight_scale: (float) for layer weight initialization
+        - activation: (str) activation for the hidden layers ('relu' or 'tanh')
         """
 
         self.num_layers = len(hidden_dims) + 1
         dims = [input_dim] + hidden_dims
 
         self.layers = [DenseLayer(
-            input_dim=dims[i], output_dim=dims[i+1], weight_scale=weight_scale
+            input_dim=dims[i], output_dim=dims[i+1], weight_scale=weight_scale, activation=activation
         ) for i in range(len(dims) - 1)]
         self.layers.append(AffineLayer(
             input_dim=dims[-1], output_dim=num_classes, weight_scale=weight_scale
@@ -53,7 +55,8 @@ class MLP:
         # TODO: Feedforward                                                        #
         ############################################################################
 
-        raise NotImplementedError
+        for layer in self.layers:
+            X = layer.feedforward(X)
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -83,12 +86,15 @@ class MLP:
         # TODO: Backpropogation                                                    #
         ############################################################################
 
-        raise NotImplementedError
+        loss, dx = softmax_loss(scores, labels)
+        for layer in reversed(self.layers):
+            dx = layer.backward(dx)
         ############################################################################
         # TODO: Add L2 regularization                                              #
         ############################################################################
 
-        raise NotImplementedError
+        squared_weights = sum(np.sum(layer.params['W']**2) for layer in self.layers)
+        loss += 0.5 * self.reg * squared_weights
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -130,7 +136,26 @@ class MLP:
         #                            START OF YOUR CODE                            #
         ############################################################################
 
-        raise NotImplementedError
+        velocities = self.velocities or \
+            {name: np.zeros_like(param) for name, param in params.items()}
+
+        reg = self.reg
+        grads = {name: grad + reg * params[name] for name, grad in grads.items()}
+
+        if optim == 'SGD':
+            for name, param in params.items():
+                params[name] = param - learning_rate * grads[name]
+
+        elif optim == 'momentum':
+            for name, param in params.items():
+                velocities[name] = momentum * velocities[name] + learning_rate * grads[name]
+                params[name] = param - velocities[name]
+
+        else:
+            raise ValueError('invalid optim:', optim)
+
+        self.update_model((params, reg))
+        self.velocities = velocities
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -157,7 +182,7 @@ class MLP:
         #                             START OF YOUR CODE                           #
         ############################################################################
 
-        raise NotImplementedError
+        predictions = np.argmax(self.forward(X), axis=1)
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################

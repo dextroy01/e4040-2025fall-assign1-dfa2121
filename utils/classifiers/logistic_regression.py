@@ -49,13 +49,26 @@ def logistic_regression_loss_naive(w, X, y, reg):
     ############################################################################
     #                              START OF YOUR CODE                          #
     ############################################################################
-    
-    raise NotImplementedError
+
+    N = X.shape[0]
+    y = y.astype(w.dtype)
+
+    for xi, yi in zip(X, y):
+        fi = np.sum(w * xi)
+        loss += max(fi, 0) - fi * yi + np.log1p(np.exp(-abs(fi)))
+        dw += (sigmoid(fi) - yi) * xi
+
+    loss /= N
+    dw /= N
+
+    # L1 regularization
+    loss += reg * np.sum(np.abs(w))
+    dw += reg * np.sign(w)
 
     ############################################################################
     #                               END OF YOUR CODE                           #
     ############################################################################
-    
+
     return loss, dw
 
 
@@ -79,13 +92,13 @@ def sigmoid(x):
     ############################################################################
     #                          START OF YOUR CODE                              #
     ############################################################################
-    
-    raise NotImplementedError
+
+    h = np.exp(-np.logaddexp(0, -x))
     ############################################################################
     #                          END OF YOUR CODE                                #
     ############################################################################
-    
-    return h 
+
+    return h
 
 
 def logistic_regression_loss_vectorized(w, X, y, reg):
@@ -120,10 +133,19 @@ def logistic_regression_loss_vectorized(w, X, y, reg):
     ############################################################################
     #                          START OF YOUR CODE                              #
     ############################################################################
-    
-    raise NotImplementedError
+
+    N = X.shape[0]
+    y = y.astype(w.dtype)
+
+    f = X @ w
+    loss = np.mean(np.maximum(f, 0) - f * y + np.log1p(np.exp(-np.abs(f))))
+    dw = X.T @ (sigmoid(f) - y) / N
+
+    # L1 regularization
+    loss += reg * np.sum(np.abs(w))
+    dw += reg * np.sign(w)
     ############################################################################
     #                          END OF YOUR CODE                                #
     ############################################################################
-    
+
     return loss, dw

@@ -89,7 +89,9 @@ class BasicClassifier:
             #                     START OF YOUR CODE                               #
             ########################################################################
 
-            raise NotImplementedError
+            ids = np.random.choice(num_train, batch_size)
+            X_batch = X[ids]
+            y_batch = y[ids]
             ########################################################################
             #                       END OF YOUR CODE                               #
             ########################################################################
@@ -107,7 +109,11 @@ class BasicClassifier:
             #                     START OF YOUR CODE                               #
             ########################################################################
 
-            raise NotImplementedError
+            if optim == "SGDM":
+                self.velocity = momentum * self.velocity - learning_rate * grad
+                self.W += self.velocity
+            else:
+                self.W -= learning_rate * grad
             ########################################################################
             #                    END OF YOUR CODE                                  #
             ########################################################################
@@ -177,7 +183,7 @@ class LogisticRegression(BasicClassifier):
         #                     START OF YOUR CODE                               #
         ########################################################################
 
-        raise NotImplementedError
+        y_pred = np.where(X @ self.W > 0, 1, 0)
         ########################################################################
         #                    END OF YOUR CODE                                  #
         ########################################################################
@@ -209,7 +215,7 @@ class Softmax(BasicClassifier):
         #                     START OF YOUR CODE                               #
         ########################################################################
 
-        raise NotImplementedError
+        y_pred = np.argmax(X @ self.W, axis=1)
         ########################################################################
         #                    END OF YOUR CODE                                  #
         ########################################################################

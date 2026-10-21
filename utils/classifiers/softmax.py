@@ -29,7 +29,10 @@ def softmax(x):
     #                     START OF YOUR CODE                                   #
     ############################################################################
 
-    raise NotImplementedError
+
+    shifted = x - np.max(x, axis=-1, keepdims=True)
+    e = np.exp(shifted)
+    h = e / np.sum(e, axis=-1, keepdims=True)
     ############################################################################
     #                     END OF YOUR CODE                                     #
     ############################################################################
@@ -83,7 +86,26 @@ def softmax_loss_naive(W, X, y, reg):
     #                     START OF YOUR CODE                                   #
     ############################################################################
 
-    raise NotImplementedError
+    N = X.shape[0]
+
+    for xi, yi in zip(X, y):
+        fi = np.sum(xi[:, None] * W, axis=0)
+        fi = fi - np.max(fi)
+        exp_fi = np.exp(fi)
+        sum_exp = np.sum(exp_fi)
+        pi = exp_fi / sum_exp
+
+        loss += np.log(sum_exp) - fi[yi]
+
+        pi[yi] -= 1
+        dW += xi[:, None] * pi[None, :]
+
+    loss /= N
+    dW /= N
+
+    # L1 regularization
+    loss += reg * np.sum(np.abs(W))
+    dW += reg * np.sign(W)
     ############################################################################
     #                     END OF YOUR CODE                                     #
     ############################################################################
@@ -115,7 +137,7 @@ def onehot(x, K):
     #                     START OF YOUR CODE                                   #
     ############################################################################
 
-    raise NotImplementedError
+    y[np.arange(N), x] = 1.0
     ############################################################################
     #                     END OF YOUR CODE                                     #
     ############################################################################
@@ -146,7 +168,9 @@ def cross_entropy(p, q):
     #                     START OF YOUR CODE                                   #
     ############################################################################
 
-    raise NotImplementedError
+    # avoid log(0)
+    q = np.clip(q, np.finfo(q.dtype).tiny, None)
+    h = -np.sum(p * np.log(q), axis=1)
     ############################################################################
     #                     END OF YOUR CODE                                     #
     ############################################################################
@@ -188,7 +212,17 @@ def softmax_loss_vectorized(W, X, y, reg):
     #                     START OF YOUR CODE                                   #
     ############################################################################
 
-    raise NotImplementedError
+    N = X.shape[0]
+    K = W.shape[1]
+
+    G = onehot(y, K)
+    P = softmax(X @ W)
+    loss = np.mean(cross_entropy(G, P))
+    dW = X.T @ (P - G) / N
+
+    # L1 regularization
+    loss += reg * np.sum(np.abs(W))
+    dW += reg * np.sign(W)
     ############################################################################
     #                     END OF YOUR CODE                                     #
     ############################################################################

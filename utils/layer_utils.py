@@ -61,7 +61,7 @@ class AffineLayer:
         #                           START OF YOUR CODE                             #
         ############################################################################
 
-        raise NotImplementedError
+        out = affine_forward(X, W, b)
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -108,7 +108,9 @@ class AffineLayer:
         #                         START OF YOUR CODE                               #
         ############################################################################
 
-        raise NotImplementedError
+        dX, dW, db = affine_backward(dout, X, W, b)
+        self.gradients['W'] = dW
+        self.gradients['b'] = db
         ############################################################################
         #                          END OF YOUR CODE                                #
         ############################################################################
@@ -192,13 +194,12 @@ class DenseLayer(AffineLayer):
         # intermediate results need to be cached for backprop
         self.cache['A'] = A
 
-        raise NotImplementedError
         ############################################################################
         # TODO: activation forward pass                                            #
         # NOTE: use self.activation_forward function                               #
         ############################################################################
 
-        raise NotImplementedError
+        out = self.activation_forward(A)
         ############################################################################
         #                              END OF YOUR CODE                            #
         ############################################################################
@@ -234,14 +235,14 @@ class DenseLayer(AffineLayer):
         #   remember to use functions in class                                     #
         ############################################################################
 
-        raise NotImplementedError
+        dA = self.activation_backward(dout, A)
         ############################################################################
         # TODO:                                                                    #
         # - affine backward                                                        #
         #   remember to use parent class functions                                 #
         ############################################################################
 
-        raise NotImplementedError
+        dX = super().backward(dA)
         ############################################################################
         #                              END OF YOUR CODE                            #
         ############################################################################
